@@ -1,4 +1,4 @@
-package com.cqrs.aes.api.command;
+package com.cqrs.aes.api.event;
 
 import com.cqrs.aes.model.CompleteData;
 import com.cqrs.aes.model.ContextId;
@@ -6,14 +6,12 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 import lombok.Value;
-import org.axonframework.commandhandling.annotation.TargetAggregateIdentifier;
 
 @Value
 @Builder
 @EqualsAndHashCode
-public class CompleteContextCommand {
+public class ContextCompletedUnorderedEvent {
     @NonNull
-    @TargetAggregateIdentifier
     ContextId id;
     @NonNull
     CompleteData data;

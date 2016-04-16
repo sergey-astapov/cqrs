@@ -4,8 +4,10 @@ import com.cqrs.aes.api.command.CompleteContextCommand;
 import com.cqrs.aes.api.command.CreateContextCommand;
 import com.cqrs.aes.api.command.ProcessChunkContextCommand;
 import com.cqrs.aes.model.ContextAggregate;
+import com.cqrs.aes.model.ContextId;
 import lombok.extern.slf4j.Slf4j;
 import org.axonframework.commandhandling.annotation.CommandHandler;
+import org.axonframework.repository.AggregateNotFoundException;
 import org.axonframework.repository.Repository;
 
 @Slf4j
@@ -19,22 +21,44 @@ public class ContextCommandHandler {
     @CommandHandler
     public void handle(CreateContextCommand command) {
         log.debug("Handle command: {}", command);
-        repository.add(new ContextAggregate(command));
+        ContextAggregate ctx = load(command.getId());
+        log.debug("Ctx found, id: {}, ctx: {}", command.getId(), ctx);
+        if (ctx == null) {
+            repository.add(new ContextAggregate(command));
+        } else {
+            ctx.processed(command);
+        }
     }
 
     @CommandHandler
     public void handle(ProcessChunkContextCommand command) {
         log.debug("Handle command: {}", command);
-        ContextAggregate ctx = repository.load(command.getId());
+        ContextAggregate ctx = load(command.getId());
         log.debug("Ctx found, id: {}, ctx: {}", command.getId(), ctx);
-        ctx.chunkProcessed(command);
+        if (ctx == null) {
+            repository.add(new ContextAggregate(command));
+        } else {
+            ctx.processed(command);
+        }
     }
 
     @CommandHandler
     public void handle(CompleteContextCommand command) {
         log.debug("Handle command: {}", command);
-        ContextAggregate ctx = repository.load(command.getId());
+        ContextAggregate ctx = load(command.getId());
         log.debug("Ctx found, id: {}, ctx: {}", command.getId(), ctx);
-        ctx.completed(command);
+        if (ctx == null) {
+            repository.add(new ContextAggregate(command));
+        } else {
+            ctx.processed(command);
+        }
+    }
+
+    private ContextAggregate load(ContextId id) {
+        try {
+            return repository.load(id);
+        } catch (AggregateNotFoundException e) {
+            return null;
+        }
     }
 }

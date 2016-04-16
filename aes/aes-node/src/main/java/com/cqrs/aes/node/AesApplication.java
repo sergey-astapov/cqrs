@@ -42,7 +42,7 @@ public class AesApplication implements CommandLineRunner {
         gateway.send(CompleteContextCommand.builder()
                 .id(ContextId.builder().id(id).build())
                 .data(CompleteData.builder().data("Some Data").build())
-                .chunkTotal(1L)
+                .chunksTotal(1L)
                 .build());
 
         Thread.currentThread().join();

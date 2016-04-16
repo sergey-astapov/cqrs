@@ -3,9 +3,7 @@ package com.cqrs.aes.model;
 import com.cqrs.aes.api.command.CompleteContextCommand;
 import com.cqrs.aes.api.command.CreateContextCommand;
 import com.cqrs.aes.api.command.ProcessChunkContextCommand;
-import com.cqrs.aes.api.event.ContextChunkProcessedEvent;
-import com.cqrs.aes.api.event.ContextCompletedEvent;
-import com.cqrs.aes.api.event.ContextCreatedEvent;
+import com.cqrs.aes.api.event.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.axonframework.commandhandling.annotation.CommandHandler;
@@ -26,27 +24,44 @@ public class ContextAggregate extends AbstractAnnotatedAggregateRoot {
     public ContextAggregate() {}
 
     @CommandHandler
-    public ContextAggregate(CreateContextCommand command) {
+    public ContextAggregate(CreateContextCommand c) {
         apply(ContextCreatedEvent.builder()
-                .id(command.getId()).data(command.getData())
+                .id(c.getId()).data(c.getData())
                 .build());
     }
 
-    public void chunkProcessed(ProcessChunkContextCommand command) {
+    @CommandHandler
+    public ContextAggregate(ProcessChunkContextCommand c) {
+        apply(ContextChunkProcessedUnorderedEvent.builder()
+                .id(c.getId()).data(c.getData())
+                .build());
+    }
+
+    @CommandHandler
+    public ContextAggregate(CompleteContextCommand c) {
+        apply(ContextCompletedUnorderedEvent.builder()
+                .id(c.getId()).data(c.getData()).chunksTotal(c.getChunksTotal())
+                .build());
+    }
+
+    public void processed(CreateContextCommand c) {
+        apply(ContextCreatedUnorderedEvent.builder()
+                .id(c.getId()).data(c.getData())
+                .build());
+    }
+
+    public void processed(ProcessChunkContextCommand c) {
         if (isCompleted()) {
             throw new IllegalStateException();
         }
         apply(ContextChunkProcessedEvent.builder()
-                .id(command.getId())
-                .data(command.getData())
+                .id(c.getId()).data(c.getData())
                 .build());
     }
 
-    public void completed(CompleteContextCommand command) {
+    public void processed(CompleteContextCommand c) {
         apply(ContextCompletedEvent.builder()
-                .id(command.getId())
-                .data(command.getData())
-                .chunksTotal(command.getChunkTotal())
+                .id(c.getId()).data(c.getData()).chunksTotal(c.getChunksTotal())
                 .build());
     }
 
@@ -55,21 +70,41 @@ public class ContextAggregate extends AbstractAnnotatedAggregateRoot {
     }
 
     @EventHandler
-    public void on(ContextCreatedEvent event) {
-        this.id = event.getId();
-        this.createData = event.getData();
+    public void on(ContextCreatedEvent e) {
+        this.id = e.getId();
+        this.createData = e.getData();
         this.processedChunksCount = 0;
         this.chunksTotal = null;
     }
 
     @EventHandler
-    public void on(ContextChunkProcessedEvent event) {
+    public void on(ContextCreatedUnorderedEvent e) {
+        this.createData = e.getData();
+    }
+
+    @EventHandler
+    public void on(ContextChunkProcessedEvent e) {
         this.processedChunksCount++;
     }
 
     @EventHandler
-    public void on(ContextCompletedEvent event) {
-        this.completeData = event.getData();
-        this.chunksTotal = event.getChunksTotal();
+    public void on(ContextChunkProcessedUnorderedEvent e) {
+        this.id = e.getId();
+        this.processedChunksCount = 1;
+        this.chunksTotal = null;
+    }
+
+    @EventHandler
+    public void on(ContextCompletedEvent e) {
+        this.completeData = e.getData();
+        this.chunksTotal = e.getChunksTotal();
+    }
+
+    @EventHandler
+    public void on(ContextCompletedUnorderedEvent e) {
+        this.id = e.getId();
+        this.processedChunksCount = 0;
+        this.completeData = e.getData();
+        this.chunksTotal = e.getChunksTotal();
     }
 }

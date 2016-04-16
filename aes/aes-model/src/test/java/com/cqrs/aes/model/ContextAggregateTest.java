@@ -3,9 +3,7 @@ package com.cqrs.aes.model;
 import com.cqrs.aes.api.command.CompleteContextCommand;
 import com.cqrs.aes.api.command.CreateContextCommand;
 import com.cqrs.aes.api.command.ProcessChunkContextCommand;
-import com.cqrs.aes.api.event.ContextChunkProcessedEvent;
-import com.cqrs.aes.api.event.ContextCompletedEvent;
-import com.cqrs.aes.api.event.ContextCreatedEvent;
+import com.cqrs.aes.api.event.*;
 import org.axonframework.test.FixtureConfiguration;
 import org.axonframework.test.Fixtures;
 import org.junit.Before;
@@ -50,19 +48,37 @@ public class ContextAggregateTest {
     }
 
     @Test
+    public void testContextChunkProcessedUnordered() throws Exception {
+        fixture.given()
+                .when(ProcessChunkContextCommand.builder()
+                        .id(ID).data(CHUNK_DATA)
+                        .build())
+                .expectEvents(ContextChunkProcessedUnorderedEvent.builder()
+                        .id(ID).data(CHUNK_DATA)
+                        .build());
+    }
+
+    @Test
     public void testCompleteContext() throws Exception {
         fixture.given(Arrays.asList(
                 ContextCreatedEvent.builder().id(ID).data(DATA).build(),
                 ContextChunkProcessedEvent.builder().id(ID).data(CHUNK_DATA).build()))
                 .when(CompleteContextCommand.builder()
-                        .id(ID)
-                        .data(COMPLETE_DATA)
-                        .chunkTotal(1L)
+                        .id(ID).data(COMPLETE_DATA).chunksTotal(1L)
                         .build())
                 .expectEvents(ContextCompletedEvent.builder()
-                        .id(ID)
-                        .data(COMPLETE_DATA)
-                        .chunksTotal(1L)
+                        .id(ID).data(COMPLETE_DATA).chunksTotal(1L)
+                        .build());
+    }
+
+    @Test
+    public void testContextCompletedUnordered() throws Exception {
+        fixture.given()
+                .when(CompleteContextCommand.builder()
+                        .id(ID).data(COMPLETE_DATA).chunksTotal(1L)
+                        .build())
+                .expectEvents(ContextCompletedUnorderedEvent.builder()
+                        .id(ID).data(COMPLETE_DATA).chunksTotal(1L)
                         .build());
     }
 }
