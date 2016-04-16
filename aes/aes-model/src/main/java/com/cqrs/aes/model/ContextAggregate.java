@@ -18,7 +18,10 @@ import org.axonframework.eventsourcing.annotation.AggregateIdentifier;
 public class ContextAggregate extends AbstractAnnotatedAggregateRoot {
     @AggregateIdentifier
     ContextId id;
-    ContextData data;
+    CreateData createData;
+    CompleteData completeData;
+    long processedChunksCount = 0;
+    Long chunksTotal;
 
     public ContextAggregate() {}
 
@@ -29,24 +32,44 @@ public class ContextAggregate extends AbstractAnnotatedAggregateRoot {
                 .build());
     }
 
-    @CommandHandler
     public void chunkProcessed(ProcessChunkContextCommand command) {
+        if (isCompleted()) {
+            throw new IllegalStateException();
+        }
         apply(ContextChunkProcessedEvent.builder()
                 .id(command.getId())
                 .data(command.getData())
                 .build());
     }
 
-    @CommandHandler
     public void completed(CompleteContextCommand command) {
         apply(ContextCompletedEvent.builder()
                 .id(command.getId())
+                .data(command.getData())
+                .chunksTotal(command.getChunkTotal())
                 .build());
+    }
+
+    public boolean isCompleted() {
+        return chunksTotal != null && processedChunksCount == chunksTotal;
     }
 
     @EventHandler
     public void on(ContextCreatedEvent event) {
         this.id = event.getId();
-        this.data = event.getData();
+        this.createData = event.getData();
+        this.processedChunksCount = 0;
+        this.chunksTotal = null;
+    }
+
+    @EventHandler
+    public void on(ContextChunkProcessedEvent event) {
+        this.processedChunksCount++;
+    }
+
+    @EventHandler
+    public void on(ContextCompletedEvent event) {
+        this.completeData = event.getData();
+        this.chunksTotal = event.getChunksTotal();
     }
 }

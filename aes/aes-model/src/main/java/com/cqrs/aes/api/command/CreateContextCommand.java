@@ -1,9 +1,10 @@
 package com.cqrs.aes.api.command;
 
-import com.cqrs.aes.model.ContextData;
+import com.cqrs.aes.model.CreateData;
 import com.cqrs.aes.model.ContextId;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.NonNull;
 import lombok.Value;
 import org.axonframework.commandhandling.annotation.TargetAggregateIdentifier;
 
@@ -11,7 +12,9 @@ import org.axonframework.commandhandling.annotation.TargetAggregateIdentifier;
 @Builder
 @EqualsAndHashCode
 public class CreateContextCommand {
+    @NonNull
     @TargetAggregateIdentifier
     ContextId id;
-    ContextData data;
+    @NonNull
+    CreateData data;
 }

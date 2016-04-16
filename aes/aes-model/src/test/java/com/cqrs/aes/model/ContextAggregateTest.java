@@ -11,10 +11,13 @@ import org.axonframework.test.Fixtures;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 public class ContextAggregateTest {
+    public static final CompleteData COMPLETE_DATA = CompleteData.builder().data("Some Data").build();
     private FixtureConfiguration fixture;
     public static final ContextId ID = ContextId.createNew();
-    public static final ContextData DATA = ContextData.builder().data("Some Data").build();
+    public static final CreateData DATA = CreateData.builder().data("Some Data").build();
     public static final ChunkData CHUNK_DATA = ChunkData.builder().data("Some Data").build();
 
     @Before
@@ -48,14 +51,18 @@ public class ContextAggregateTest {
 
     @Test
     public void testCompleteContext() throws Exception {
-        fixture.given(ContextCreatedEvent.builder()
-                .id(ID).data(DATA)
-                .build())
+        fixture.given(Arrays.asList(
+                ContextCreatedEvent.builder().id(ID).data(DATA).build(),
+                ContextChunkProcessedEvent.builder().id(ID).data(CHUNK_DATA).build()))
                 .when(CompleteContextCommand.builder()
                         .id(ID)
+                        .data(COMPLETE_DATA)
+                        .chunkTotal(1L)
                         .build())
                 .expectEvents(ContextCompletedEvent.builder()
                         .id(ID)
+                        .data(COMPLETE_DATA)
+                        .chunksTotal(1L)
                         .build());
     }
 }

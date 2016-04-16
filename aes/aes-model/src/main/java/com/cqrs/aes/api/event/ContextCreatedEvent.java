@@ -1,6 +1,6 @@
 package com.cqrs.aes.api.event;
 
-import com.cqrs.aes.model.ContextData;
+import com.cqrs.aes.model.CreateData;
 import com.cqrs.aes.model.ContextId;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -11,5 +11,5 @@ import lombok.Value;
 @EqualsAndHashCode
 public class ContextCreatedEvent {
     ContextId id;
-    ContextData data;
+    CreateData data;
 }

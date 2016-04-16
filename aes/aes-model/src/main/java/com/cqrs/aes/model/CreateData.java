@@ -6,7 +6,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class ContextData {
+public class CreateData {
     @NonNull
     String data;
 }
