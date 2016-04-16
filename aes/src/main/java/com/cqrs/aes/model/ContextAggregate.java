@@ -1,6 +1,10 @@
 package com.cqrs.aes.model;
 
+import com.cqrs.aes.api.command.CompleteContextCommand;
 import com.cqrs.aes.api.command.CreateContextCommand;
+import com.cqrs.aes.api.command.ProcessChunkContextCommand;
+import com.cqrs.aes.api.event.ContextChunkProcessedEvent;
+import com.cqrs.aes.api.event.ContextCompletedEvent;
 import com.cqrs.aes.api.event.ContextCreatedEvent;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,6 +26,21 @@ public class ContextAggregate extends AbstractAnnotatedAggregateRoot {
     public ContextAggregate(CreateContextCommand command) {
         apply(ContextCreatedEvent.builder()
                 .id(command.getId()).data(command.getData())
+                .build());
+    }
+
+    @CommandHandler
+    public void chunkProcessed(ProcessChunkContextCommand command) {
+        apply(ContextChunkProcessedEvent.builder()
+                .id(command.getId())
+                .data(command.getData())
+                .build());
+    }
+
+    @CommandHandler
+    public void completed(CompleteContextCommand command) {
+        apply(ContextCompletedEvent.builder()
+                .id(command.getId())
                 .build());
     }
 
