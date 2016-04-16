@@ -1,7 +1,7 @@
 package com.cqrs.aes.node;
 
-import com.cqrs.aes.handler.command.ContextCommandHandler;
-import com.cqrs.aes.handler.event.ContextEventHandler;
+import com.cqrs.aes.business.handler.command.ContextCommandHandler;
+import com.cqrs.aes.business.handler.event.ContextEventHandler;
 import com.cqrs.aes.model.ContextAggregate;
 import org.axonframework.commandhandling.SimpleCommandBus;
 import org.axonframework.commandhandling.gateway.DefaultCommandGateway;

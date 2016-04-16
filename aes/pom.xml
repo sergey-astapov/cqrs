@@ -16,6 +16,7 @@
 
     <modules>
         <module>aes-model</module>
+        <module>aes-business</module>
         <module>aes-node</module>
     </modules>
 
