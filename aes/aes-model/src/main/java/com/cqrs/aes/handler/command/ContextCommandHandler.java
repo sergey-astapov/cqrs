@@ -1,4 +1,4 @@
-package com.cqrs.aes.business.handler.command;
+package com.cqrs.aes.handler.command;
 
 import com.cqrs.aes.api.command.CompleteContextCommand;
 import com.cqrs.aes.api.command.CreateContextCommand;

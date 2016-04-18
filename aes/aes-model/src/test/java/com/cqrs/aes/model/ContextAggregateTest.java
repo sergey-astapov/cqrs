@@ -4,6 +4,7 @@ import com.cqrs.aes.api.command.CompleteContextCommand;
 import com.cqrs.aes.api.command.CreateContextCommand;
 import com.cqrs.aes.api.command.ProcessChunkContextCommand;
 import com.cqrs.aes.api.event.*;
+import com.cqrs.aes.handler.command.ContextCommandHandler;
 import org.axonframework.test.FixtureConfiguration;
 import org.axonframework.test.Fixtures;
 import org.junit.Before;
@@ -13,14 +14,18 @@ import java.util.Arrays;
 
 public class ContextAggregateTest {
     public static final CompleteData COMPLETE_DATA = CompleteData.builder().data("Some Data").build();
-    private FixtureConfiguration fixture;
     public static final ContextId ID = ContextId.createNew();
     public static final CreateData DATA = CreateData.builder().data("Some Data").build();
     public static final ChunkData CHUNK_DATA = ChunkData.builder().data("Some Data").build();
 
+    private FixtureConfiguration fixture;
+
     @Before
-    public void setUp() throws Exception {
+    @SuppressWarnings("unchecked")
+    public void before() throws Exception {
         fixture = Fixtures.newGivenWhenThenFixture(ContextAggregate.class);
+        fixture.registerAnnotatedCommandHandler(
+                new ContextCommandHandler(fixture.getRepository()));
     }
 
     @Test
@@ -59,6 +64,7 @@ public class ContextAggregateTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testCompleteContext() throws Exception {
         fixture.given(Arrays.asList(
                 ContextCreatedEvent.builder().id(ID).data(DATA).build(),

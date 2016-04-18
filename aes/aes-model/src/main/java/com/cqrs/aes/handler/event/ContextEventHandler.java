@@ -1,4 +1,4 @@
-package com.cqrs.aes.business.handler.event;
+package com.cqrs.aes.handler.event;
 
 import com.cqrs.aes.api.event.ContextChunkProcessedEvent;
 import com.cqrs.aes.api.event.ContextCompletedEvent;
