@@ -11,5 +11,13 @@
                 <ignoreVersion type="regex">.*[.]CR.*</ignoreVersion>
             </ignoreVersions>
         </rule>
+
+        <rule groupId="ch.qos.logback">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*Alpha.*</ignoreVersion>
+                <ignoreVersion type="regex">.*Beta.*</ignoreVersion>
+                <ignoreVersion type="regex">.*[.]CR.*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
     </rules>
 </ruleset>

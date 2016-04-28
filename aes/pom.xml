@@ -26,8 +26,10 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
                 <configuration>
+                    <includesList>com.cqrs</includesList>
+                    <allowSnapshots>true</allowSnapshots>
                     <generateBackupPoms>false</generateBackupPoms>
-                    <rulesUri>file://${project.basedir}/maven-version-rules.xml</rulesUri>
+                    <!--<rulesUri>file://${project.basedir}/maven-version-rules.xml</rulesUri>-->
                 </configuration>
             </plugin>
             <plugin>
